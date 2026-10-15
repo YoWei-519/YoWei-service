@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宏銳國際有限公司 - 空壓機設備服務管理系統</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        canvas {
+            touch-action: none;
+            cursor: crosshair;
+        }
+        /* 列印優化：當列印時自動隱藏首頁與按鈕，讓報告完美呈現 */
+        @media print {
+            body {
+                background-color: white !important;
+                padding: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .hidden-print {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans p-4 md:p-6">
+
+    <div class="max-w-5xl mx-auto bg-white border border-gray-300 shadow-sm p-6 md:p-8 space-y-6">
+
+        <!-- ==================== 1. 首頁 (Dashboard View) ==================== -->
+        <div id="homeView" class="space-y-6 no-print">
+            <div class="text-center border-b border-gray-300 pb-6">
+                <h1 class="text-2xl font-bold tracking-widest text-gray-800">宏 銳 國 際 有 限 公 司</h1>
+                <h2 class="text-lg font-semibold text-gray-700 mt-1">空壓機設備服務記錄管理系統</h2>
+                <p class="text-xs text-gray-500 mt-1">HONGRUI INTERNATIONAL CO., LTD.</p>
+            </div>
+
+            <div class="py-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-4 text-center">請選擇要填寫服務報告的設備類型：</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl mx-auto">
+                    <!-- 離心式按鈕 -->
+                    <button onclick="switchView('centrifugal')" class="p-6 bg-blue-50 border-2 border-blue-200 hover:border-blue-500 rounded-xl text-left transition shadow-sm hover:shadow group">
+                        <div class="text-lg font-bold text-blue-900 group-hover:text-blue-600">🌀 離心式機組</div>
+                        <p class="text-xs text-gray-500 mt-1">離心式空壓機運轉數據與服務記錄報告</p>
+                    </button>
+
+                    <!-- 螺旋式按鈕 -->
+                    <button onclick="switchView('screw')" class="p-6 bg-emerald-50 border-2 border-emerald-200 hover:border-emerald-500 rounded-xl text-left transition shadow-sm hover:shadow group">
+                        <div class="text-lg font-bold text-emerald-900 group-hover:text-emerald-600">🔩 螺旋式機組</div>
+                        <p class="text-xs text-gray-500 mt-1">空壓機檢點及保養服務報告單（含完整檢點項目與零件明細）</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==================== 2. 離心式專屬內頁 (Centrifugal View) ==================== -->
+        <div id="centrifugalView" class="space-y-6 hidden">
+            <!-- 頂部導覽列 (列印時隱藏) -->
+            <div class="border-b border-gray-300 pb-4 flex justify-between items-center no-print">
+                <div>
+                    <h1 class="text-xl font-bold tracking-widest text-gray-800">宏 銳 國 際 有 限 公 司</h1>
+                    <h2 class="text-base font-bold text-blue-600 mt-1">離心式空壓機『服務記錄報告書』</h2>
+                </div>
+                <button onclick="goBackHome()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-semibold px-4 py-2 rounded-lg transition">
+                    ← 返回首頁
+                </button>
+            </div>
+
+            <!-- 列印專用標題 -->
+            <div class="text-center border-b border-gray-300 pb-4 hidden hidden-print">
+                <h1 class="text-xl font-bold tracking-widest text-gray-800">宏 銳 國 際 有 限 公 司</h1>
+                <h2 class="text-base font-bold text-blue-600 mt-1">離心式空壓機『服務記錄報告書』</h2>
+            </div>
+
+            <!-- 基本資料區塊 -->
+            <div class="border border-gray-300 p-4 rounded text-sm space-y-3 bg-gray-50">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">客戶名稱：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-blue-500" placeholder="請輸入客戶名稱">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">設備名稱：</label>
+                        <input type="text" value="離心式空壓機" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-blue-500" readonly>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">設備型號：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-blue-500" placeholder="例如: TA-3000">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">機台序號：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-blue-500" placeholder="請輸入機台序號">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">馬力數 / 壓力：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-blue-500" placeholder="例如: 600HP 100PSIG">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">馬達電壓 / 電流：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-blue-500" placeholder="例如: 380V / 79.9A">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">工作項目：</label>
+                        <select class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-blue-500">
+                            <option>巡迴服務</option>
+                            <option>緊急搶修</option>
+                            <option>故障排除</option>
+                            <option>大修保養</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">日期：</label>
+                        <input type="date" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 運轉數據表格區 -->
+            <div>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse border border-gray-300 text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-700 text-xs">
+                                <th class="border border-gray-300 p-2 text-left">運轉數據</th>
+                                <th class="border border-gray-300 p-2 text-center w-32">數值</th>
+                                <th class="border border-gray-300 p-2 text-left">運轉數據</th>
+                                <th class="border border-gray-300 p-2 text-center w-32">數值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border border-gray-300 p-2">System Air Press.</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">Motor Amps</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Main Oil Pressure</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">Max Amps Set point</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Oil Filter Press.</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">Min Amps Set point</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Bearing Oil Press.</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">Air pressure Set point</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Stage 2 Inlet Temp.</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">I/V Open %</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Stage 3 Inlet Temp.</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">BOV Closed %</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Oil Temperature</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">Discharge Pressure</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Stage 1 Vibration</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">Total Running Time</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Stage 2 Vibration</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2">Current Running Time</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-2">Stage 3 Vibration</td>
+                                <td class="border border-gray-300 p-2 text-center"><input type="text" class="w-full border border-gray-200 rounded px-1 py-0.5 text-center text-sm"></td>
+                                <td class="border border-gray-300 p-2 text-gray-400">--</td>
+                                <td class="border border-gray-300 p-2 text-center text-gray-400">--</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 工作說明與建議事項 -->
+            <div>
+                <label class="block font-bold text-gray-800 mb-1 text-sm">工作說明 & 建議事項 / 施工項目：</label>
+                <textarea rows="4" class="w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:border-blue-500" placeholder="請輸入保養工作內容、項目或建議事項..."></textarea>
+            </div>
+
+            <!-- 底部公司資訊與簽名確認區 -->
+            <div class="pt-4 border-t border-gray-300 space-y-4">
+                <div>
+                    <p class="font-bold text-gray-800 text-sm">宏銳國際有限公司</p>
+                    <p class="text-xs text-gray-600 mt-1">服務專線：02-8970-3504 傳真：02-3501-6948</p>
+                    <p class="text-xs text-gray-600">廠址：新北市樹林區佳園路三段181巷110弄1-38號</p>
+                </div>
+
+                <div class="pt-2 border-t border-gray-200 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-gray-800 text-sm">簽名確認 (Signatures)</h3>
+                        <button type="button" onclick="clearAllSignatures('c_customerCanvas', 'c_engineerCanvas')" class="text-xs bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition text-gray-700 font-medium no-print">
+                            清除所有簽名
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-xs text-gray-600">
+                                <span class="font-semibold">客戶簽名 (Customer Signature)：</span>
+                                <button type="button" onclick="clearCanvas('c_customerCanvas')" class="text-blue-600 hover:underline no-print">重簽</button>
+                            </div>
+                            <div class="border border-gray-300 rounded bg-gray-50 overflow-hidden">
+                                <canvas id="c_customerCanvas" class="w-full h-36 block"></canvas>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-xs text-gray-600">
+                                <span class="font-semibold">維修工程師簽名 (Engineer Signature)：</span>
+                                <button type="button" onclick="clearCanvas('c_engineerCanvas')" class="text-blue-600 hover:underline no-print">重簽</button>
+                            </div>
+                            <div class="border border-gray-300 rounded bg-gray-50 overflow-hidden">
+                                <canvas id="c_engineerCanvas" class="w-full h-36 block"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部按鈕 (列印時隱藏) -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 no-print">
+                <button type="button" onclick="goBackHome()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm px-5 py-2 rounded font-medium transition">
+                    儲存草稿
+                </button>
+                <button type="button" onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white text-sm px-6 py-2 rounded font-medium transition shadow">
+                    列印 / 另存 PDF
+                </button>
+            </div>
+        </div>
+
+
+        <!-- ==================== 3. 螺旋式專屬內頁 (Screw View) ==================== -->
+        <div id="screwView" class="space-y-6 hidden">
+            <!-- 頂部導覽列 (列印時隱藏) -->
+            <div class="border-b border-gray-300 pb-4 flex justify-between items-center no-print">
+                <div>
+                    <h1 class="text-xl font-bold tracking-widest text-gray-800">宏 銳 國 際 有 限 公 司</h1>
+                    <h2 class="text-base font-bold text-emerald-700 mt-1">空壓機檢點及保養服務報告單</h2>
+                </div>
+                <div>
+                    <button onclick="goBackHome()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-semibold px-4 py-2 rounded-lg transition">
+                        ← 返回首頁
+                    </button>
+                </div>
+            </div>
+
+            <!-- 列印專用標題 -->
+            <div class="text-center border-b border-gray-300 pb-4 hidden hidden-print">
+                <h1 class="text-xl font-bold tracking-widest text-gray-800">宏 銳 國 際 有 限 公 司</h1>
+                <h2 class="text-base font-bold text-emerald-700 mt-1">空壓機檢點及保養服務報告單</h2>
+            </div>
+
+            <!-- 基本資料列 -->
+            <div class="border border-gray-300 p-4 rounded text-sm space-y-3 bg-gray-50">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">客戶名稱：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:border-emerald-500" placeholder="請輸入客戶名稱">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">機型：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:border-emerald-500" placeholder="請輸入機型">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">日期：</label>
+                        <input type="date" class="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">序號：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:border-emerald-500" placeholder="請輸入序號">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">機台編號：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:border-emerald-500" placeholder="請輸入機台編號">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">工作類別：</label>
+                        <div class="flex items-center gap-4 pt-1 text-xs font-medium text-gray-700">
+                            <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> 新機/試車</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> 維修</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> 例檢</label>
+                            <label class="flex items-center gap-1"><input type="checkbox" class="rounded"> 合約</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-200">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">運轉時數：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:border-emerald-500" placeholder="Hours">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">負荷時數：</label>
+                        <input type="text" class="w-full border border-gray-300 rounded px-2 py-1 text-sm bg-white focus:outline-none focus:border-emerald-500" placeholder="Hours">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 檢點與保養項目大表格 -->
+            <div class="border border-gray-300 rounded overflow-hidden text-sm">
+                <div class="bg-gray-100 p-2 font-bold text-gray-800 border-b border-gray-300">
+                    【 空壓機檢點與運轉狀態項目 】
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-300">
+                    <!-- 左欄項目 -->
+                    <div class="p-4 space-y-4">
+                        <div class="space-y-1.5 text-xs">
+                            <p class="font-bold text-gray-800">1. 壓力電流檢測</p>
+                            <div class="grid grid-cols-2 gap-2 pl-2">
+                                <div>a. 壓力: P1 <input type="text" class="w-16 border-b border-gray-400 text-center text-xs"> P2 <input type="text" class="w-16 border-b border-gray-400 text-center text-xs"></div>
+                            </div>
+                            <div class="pl-2">b. 電壓: R <input type="text" class="w-10 border-b border-gray-400 text-center text-xs"> S <input type="text" class="w-10 border-b border-gray-400 text-center text-xs"> T <input type="text" class="w-10 border-b border-gray-400 text-center text-xs"></div>
+                            <div class="pl-2">c. 電流: <input type="text" class="w-full border-b border-gray-400 text-center text-xs mt-1" placeholder="R / S / T 電流數值"></div>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs border-t border-gray-200 pt-2">
+                            <p class="font-bold text-gray-800">2. 壓力檢測</p>
+                            <div class="pl-2 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span>a. 油氣分離器壓差: <input type="text" class="w-16 border-b border-gray-400 text-center text-xs"> Psig/bar</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 更換</label><label><input type="checkbox"> 正常</label></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>b. 油過濾器壓差</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 更換</label><label><input type="checkbox"> 正常</label></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>c. 空氣過濾器檢點</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 更換</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 清潔</label></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs border-t border-gray-200 pt-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">3. 冷卻油液位</span>
+                                <span class="space-x-2"><label><input type="checkbox"> 更換</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 補充</label></span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">4. 皮帶/連軸器狀況</span>
+                                <span class="space-x-2"><label><input type="checkbox"> 更換</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">5. 軸封狀況</span>
+                                <span class="space-x-2"><label><input type="checkbox"> 需更換</label><label><input type="checkbox"> 正常</label></span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800">6. 前置過濾網</span>
+                                <span class="space-x-2"><label><input type="checkbox"> 需更換</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 清潔</label></span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs border-t border-gray-200 pt-2">
+                            <p class="font-bold text-gray-800">7. 感知器功能</p>
+                            <div class="pl-2 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span>a. 出口壓力感知器</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>b. 油槽壓力感知器</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右欄項目 -->
+                    <div class="p-4 space-y-4">
+                        <div class="space-y-1.5 text-xs">
+                            <p class="font-bold text-gray-800">8. 運轉溫度檢測</p>
+                            <div class="pl-2 space-y-1">
+                                <div class="flex justify-between items-center">
+                                    <span>a. 環境溫度40°C: <input type="text" class="w-12 border-b border-gray-400 text-center text-xs">°C</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 高溫</label><label><input type="checkbox"> 正常</label></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>b. 空氣出口溫度: <input type="text" class="w-12 border-b border-gray-400 text-center text-xs">°C</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 高溫</label><label><input type="checkbox"> 正常</label></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>c. 油冷卻器功能</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 阻塞</label><label><input type="checkbox"> 清潔</label><label><input type="checkbox"> 不良</label></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>d. 後部(空氣)冷卻器</span>
+                                    <span class="space-x-2"><label><input type="checkbox"> 阻塞</label><label><input type="checkbox"> 清潔</label><label><input type="checkbox"> 不良</label></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs border-t border-gray-200 pt-2">
+                            <div class="flex justify-between items-center"><span class="font-bold text-gray-800">9. 負載/釋壓閥功能</span><span class="space-x-2"><label><input type="checkbox"> 保養</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span></div>
+                            <div class="flex justify-between items-center"><span class="font-bold text-gray-800">10. 回油系統功能</span><span class="space-x-2"><label><input type="checkbox"> 保養</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span></div>
+                            <div class="flex justify-between items-center"><span class="font-bold text-gray-800">11. 進氣閥功能</span><span class="space-x-2"><label><input type="checkbox"> 保養</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span></div>
+                            <div class="flex justify-between items-center"><span class="font-bold text-gray-800">12. 壓力逆止閥功能</span><span class="space-x-2"><label><input type="checkbox"> 保養</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span></div>
+                            <div class="flex justify-between items-center"><span class="font-bold text-gray-800">13. 排水器(空氣桶)</span><span class="space-x-2"><label><input type="checkbox"> 清潔</label><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span></div>
+                            <div class="flex justify-between items-center"><span class="font-bold text-gray-800">14. 機台管路系統接點</span><span class="space-x-2"><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 滲油</label></span></div>
+                        </div>
+
+                        <div class="space-y-1.5 text-xs border-t border-gray-200 pt-2">
+                            <p class="font-bold text-gray-800">** 冷凍式乾燥機 (型號: <input type="text" class="w-20 border-b border-gray-400 text-xs"> 冷媒: <input type="text" class="w-14 border-b border-gray-400 text-xs"> )</p>
+                            <div class="pl-2 space-y-1">
+                                <div class="flex justify-between items-center"><span>a. 冷媒高壓/低壓狀況</span><span><input type="text" class="w-24 border-b border-gray-400 text-center text-xs"></span></div>
+                                <div class="flex justify-between items-center"><span>b. 壓力露點: <input type="text" class="w-10 border-b border-gray-400 text-center text-xs">°C</span><span class="space-x-2"><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label></span></div>
+                                <div class="flex justify-between items-center"><span>c. 散熱器狀況</span><span class="space-x-2"><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label><label><input type="checkbox"> 清潔</label></span></div>
+                                <div class="flex justify-between items-center"><span>d. 排水器(乾燥機)</span><span class="space-x-2"><label><input type="checkbox"> 正常</label><label><input type="checkbox"> 不良</label><label><input type="checkbox"> 清潔</label></span></div>
+                            </div>
+                            <div class="space-y-1 pt-1">
+                                <div class="flex justify-between items-center"><span>**精密過濾器1-型號</span><span class="space-x-2"><label><input type="checkbox"> 需更換</label><label><input type="checkbox"> 正常</label></span></div>
+                                <div class="flex justify-between items-center"><span>**精密過濾器2-型號</span><span class="space-x-2"><label><input type="checkbox"> 需更換</label><label><input type="checkbox"> 正常</label></span></div>
+                                <div class="flex justify-between items-center"><span>**精密過濾器3-型號</span><span class="space-x-2"><label><input type="checkbox"> 需更換</label><label><input type="checkbox"> 正常</label></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 更換零件明細表格 -->
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-300 text-xs">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700">
+                            <th class="border border-gray-300 p-2 text-center w-12">項次</th>
+                            <th class="border border-gray-300 p-2 text-left">更換零件品名</th>
+                            <th class="border border-gray-300 p-2 text-center w-20">數量</th>
+                            <th class="border border-gray-300 p-2 text-center w-24">金額</th>
+                            <th class="border border-gray-300 p-2 text-left w-48">備註</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <script>
+                            for(let i=1; i<=10; i++) {
+                                document.write(`
+                                    <tr>
+                                        <td class="border border-gray-300 p-1.5 text-center font-semibold">${i}</td>
+                                        <td class="border border-gray-300 p-1.5"><input type="text" class="w-full border-0 focus:outline-none text-xs"></td>
+                                        <td class="border border-gray-300 p-1.5"><input type="text" class="w-full border-0 focus:outline-none text-center text-xs"></td>
+                                        <td class="border border-gray-300 p-1.5"><input type="text" class="w-full border-0 focus:outline-none text-center text-xs"></td>
+                                        <td class="border border-gray-300 p-1.5"><input type="text" class="w-full border-0 focus:outline-none text-xs"></td>
+                                    </tr>
+                                `);
+                            }
+                        </script>
+                    </tbody>
+                </table>
+                <div class="flex justify-end gap-6 p-2 bg-gray-50 border-x border-b border-gray-300 text-xs font-semibold">
+                    <div>本次服務金額總結：<input type="text" class="border-b border-gray-400 w-28 text-center text-xs font-normal"></div>
+                    <div>未稅：<input type="text" class="border-b border-gray-400 w-28 text-center text-xs font-normal"></div>
+                </div>
+            </div>
+
+            <!-- 其它事項備註 -->
+            <div>
+                <label class="block font-bold text-gray-800 mb-1 text-sm">其它事項：</label>
+                <textarea rows="3" class="w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:border-emerald-500" placeholder="請輸入其它事項或施工備註..."></textarea>
+            </div>
+
+            <!-- 底部宏銳國際資訊與簽名板 -->
+            <div class="pt-4 border-t border-gray-300 space-y-4">
+                <div>
+                    <p class="font-bold text-gray-800 text-sm">宏銳國際有限公司</p>
+                    <p class="text-xs text-gray-600 mt-1">服務專線：02-8970-3504 傳真：02-3501-6948</p>
+                    <p class="text-xs text-gray-600">廠址：新北市樹林區佳園路三段181巷110弄1-38號</p>
+                </div>
+
+                <div class="pt-2 border-t border-gray-200 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-gray-800 text-sm">簽名確認 (Signatures)</h3>
+                        <button type="button" onclick="clearAllSignatures('s_customerCanvas', 's_engineerCanvas')" class="text-xs bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition text-gray-700 font-medium no-print">
+                            清除所有簽名
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-xs text-gray-600">
+                                <span class="font-semibold">客戶簽名 (Customer Signature)：</span>
+                                <button type="button" onclick="clearCanvas('s_customerCanvas')" class="text-emerald-600 hover:underline no-print">重簽</button>
+                            </div>
+                            <div class="border border-gray-300 rounded bg-gray-50 overflow-hidden">
+                                <canvas id="s_customerCanvas" class="w-full h-36 block"></canvas>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-xs text-gray-600">
+                                <span class="font-semibold">服務人員簽名 (Engineer Signature)：</span>
+                                <button type="button" onclick="clearCanvas('s_engineerCanvas')" class="text-emerald-600 hover:underline no-print">重簽</button>
+                            </div>
+                            <div class="border border-gray-300 rounded bg-gray-50 overflow-hidden">
+                                <canvas id="s_engineerCanvas" class="w-full h-36 block"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部按鈕 (列印時隱藏) -->
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 no-print">
+                <button type="button" onclick="goBackHome()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm px-5 py-2 rounded font-medium transition">
+                    儲存草稿
+                </button>
+                <button type="button" onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm px-6 py-2 rounded font-medium transition shadow">
+                    列印 / 另存 PDF
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 互動邏輯與簽名板腳本 -->
+    <script>
+        function switchView(type) {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('centrifugalView').classList.add('hidden');
+            document.getElementById('screwView').classList.add('hidden');
+
+            if (type === 'centrifugal') {
+                document.getElementById('centrifugalView').classList.remove('hidden');
+                setTimeout(() => {
+                    resizeCanvas('c_customerCanvas');
+                    resizeCanvas('c_engineerCanvas');
+                }, 50);
+            } else if (type === 'screw') {
+                document.getElementById('screwView').classList.remove('hidden');
+                setTimeout(() => {
+                    resizeCanvas('s_customerCanvas');
+                    resizeCanvas('s_engineerCanvas');
+                }, 50);
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function goBackHome() {
+            document.getElementById('centrifugalView').classList.add('hidden');
+            document.getElementById('screwView').classList.add('hidden');
+            document.getElementById('homeView').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        // 手寫簽名板初始化
+        const canvases = {};
+
+        function initCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+            canvases[canvasId] = { canvas, ctx };
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+                const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            });
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            });
+            window.addEventListener('mouseup', () => { isDrawing = false; });
+
+            canvas.addEventListener('touchstart', (e) => {
+                isDrawing = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                e.preventDefault();
+            });
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isDrawing) return;
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                e.preventDefault();
+            });
+            canvas.addEventListener('touchend', () => { isDrawing = false; });
+        }
+
+        function resizeCanvas(canvasId) {
+            const item = canvases[canvasId];
+            if (!item) return;
+            const canvas = item.canvas;
+            const ctx = item.ctx;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 2.0;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        // 初始化所有簽名板
+        initCanvas('c_customerCanvas');
+        initCanvas('c_engineerCanvas');
+        initCanvas('s_customerCanvas');
+        initCanvas('s_engineerCanvas');
+
+        function clearCanvas(canvasId) {
+            const item = canvases[canvasId];
+            if (!item) return;
+            item.ctx.clearRect(0, 0, item.canvas.width, item.canvas.height);
+        }
+
+        function clearAllSignatures(id1, id2) {
+            clearCanvas(id1);
+            clearCanvas(id2);
+        }
+    </script>
+</body>
+</html>
